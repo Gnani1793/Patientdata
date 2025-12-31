@@ -25,7 +25,7 @@ app.use('/api/auth', require('./routes/auth'));
 app.use('/api/patients', require('./routes/patients'));
 app.use('/api/whatsapp', require('./routes/whatsapp'));
 
-app.get('/', (req, res) => res.send('Sri Satya Eye Care and Opticals API'));
+// app.get('/', (req, res) => res.send('Sri Satya Eye Care and Opticals API'));
 
 // Serve static files from the React frontend app
 const path = require('path');
