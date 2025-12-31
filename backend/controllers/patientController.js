@@ -13,12 +13,65 @@ async function getNextMR() {
   return `MR-${seq}`;
 }
 
+// Placeholder for SMS service
+// SMS Service
+const sendSMS = async (phone, message) => {
+  try {
+    const accountSid = process.env.TWILIO_ACCOUNT_SID;
+    const authToken = process.env.TWILIO_AUTH_TOKEN;
+    const fromPhone = process.env.TWILIO_PHONE_NUMBER;
+
+    if (!accountSid || !authToken || !fromPhone) {
+      console.warn('Twilio credentials missing in .env. Mocking SMS.');
+      console.log(`[Mock SMS] To: ${phone}, Message: ${message}`);
+      return true; // Pretend it worked
+    }
+
+    // Format phone number to E.164 if not already (assuming IN for now if missing)
+    let formattedPhone = phone;
+    if (!phone.startsWith('+')) {
+      formattedPhone = `+91${phone}`; // Default to India, or use a proper library if needed
+    }
+
+    const client = require('twilio')(accountSid, authToken);
+    await client.messages.create({
+      body: message,
+      from: fromPhone,
+      to: formattedPhone
+    });
+    console.log(`Twilio SMS sent to ${formattedPhone}`);
+    return true;
+  } catch (error) {
+    console.error('Twilio Error:', error.message);
+    return false;
+  }
+};
+
+exports.deletePatient = async (req, res) => {
+  try {
+    const patient = await Patient.findByIdAndDelete(req.params.id);
+    if (!patient) return res.status(404).json({ msg: 'Not found' });
+    res.json({ msg: 'Patient removed' });
+  } catch (err) {
+    res.status(500).send('Server error');
+  }
+};
+
 exports.createPatient = async (req, res) => {
   try {
     const mrNo = await getNextMR();
     const data = { ...req.body, mrNo };
     const patient = new Patient(data);
     await patient.save();
+
+    // Send SMS
+    try {
+      const message = `Patient: ${patient.name} (MR: ${mrNo})\nDate: ${new Date(patient.date).toLocaleDateString()}\nComplaint: ${patient.complaint}\nDiagnosis: ${patient.diagnosis}\nAdvice: ${patient.advice}\n\nThank you for visiting Sri Satya Eye Care.`;
+      await sendSMS(patient.phone, message);
+    } catch (smsError) {
+      console.error('SMS Failed:', smsError);
+    }
+
     res.json(patient);
   } catch (err) {
     console.error(err);
@@ -60,6 +113,15 @@ exports.updatePatient = async (req, res) => {
   try {
     const patient = await Patient.findByIdAndUpdate(req.params.id, req.body, { new: true });
     if (!patient) return res.status(404).json({ msg: 'Not found' });
+
+    // Send SMS
+    try {
+      const message = `Update for ${patient.name} (MR: ${patient.mrNo})\nDiagnosis: ${patient.diagnosis}\nAdvice: ${patient.advice}\n\nSri Satya Eye Care.`;
+      await sendSMS(patient.phone, message);
+    } catch (smsError) {
+      console.error('SMS Failed:', smsError);
+    }
+
     res.json(patient);
   } catch (err) {
     res.status(500).send('Server error');

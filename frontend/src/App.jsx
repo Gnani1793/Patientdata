@@ -5,7 +5,7 @@ import Dashboard from './components/Dashboard'
 import NewPatient from './components/NewPatient'
 import PrivateRoute from './components/PrivateRoute'
 
-export default function App(){
+export default function App() {
   return (
     <Routes>
       <Route path="/login" element={<Login />} />
@@ -15,6 +15,11 @@ export default function App(){
         </PrivateRoute>
       } />
       <Route path="/new-patient" element={
+        <PrivateRoute>
+          <NewPatient />
+        </PrivateRoute>
+      } />
+      <Route path="/edit/:id" element={
         <PrivateRoute>
           <NewPatient />
         </PrivateRoute>

@@ -9,5 +9,6 @@ router.get('/search', auth, controller.searchPatients);
 router.get('/export/excel', auth, controller.exportExcel);
 router.get('/:id', auth, controller.getPatient);
 router.put('/:id', auth, controller.updatePatient);
+router.delete('/:id', auth, controller.deletePatient);
 
 module.exports = router;

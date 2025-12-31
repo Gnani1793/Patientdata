@@ -1,12 +1,13 @@
-import React, {useEffect, useState} from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import Sidebar from './Sidebar'
 import PatientList from './PatientList'
 import api from '../api'
 import { getToken } from '../utils/auth'
+import WhatsAppConnect from './WhatsAppConnect'
 
-export default function Dashboard(){
+export default function Dashboard() {
   const navigate = useNavigate()
   const [patients, setPatients] = useState([])
   const [loading, setLoading] = useState(true)
@@ -20,7 +21,7 @@ export default function Dashboard(){
     }
   }, [navigate])
 
-  const fetchPatients = async ()=>{
+  const fetchPatients = async () => {
     try {
       setLoading(true)
       setError(null)
@@ -39,13 +40,13 @@ export default function Dashboard(){
     }
   }
 
-  useEffect(()=>{fetchPatients()}, [])
+  useEffect(() => { fetchPatients() }, [])
 
   return (
-    <motion.div initial={{opacity:0}} animate={{opacity:1}} className="min-h-screen flex bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="min-h-screen flex bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       <Sidebar />
       <main className="flex-1 p-8">
-        <motion.div initial={{opacity:0, y:-30}} animate={{opacity:1, y:0}} transition={{duration:0.6}} className="mb-8 flex justify-between items-start">
+        <motion.div initial={{ opacity: 0, y: -30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} className="mb-8 flex justify-between items-start">
           <div>
             <h2 className="text-4xl font-bold bg-gradient-to-r from-slate-700 to-indigo-700 bg-clip-text text-transparent mb-2">
               Patient Management Dashboard
@@ -53,8 +54,8 @@ export default function Dashboard(){
             <p className="text-slate-600">Manage patient records and examinations efficiently</p>
           </div>
           <motion.button
-            whileHover={{scale:1.05}}
-            whileTap={{scale:0.95}}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             onClick={() => navigate('/new-patient')}
             className="px-6 py-3 bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-semibold rounded-xl shadow-lg hover:from-blue-600 hover:to-indigo-600 transition-all flex items-center"
           >
@@ -64,12 +65,15 @@ export default function Dashboard(){
             Add New Patient
           </motion.button>
         </motion.div>
-        <motion.div initial={{opacity:0, y:20}} animate={{opacity:1, y:0}} transition={{delay:0.2}} className="grid md:grid-cols-3 gap-6 mb-8">
+
+        <WhatsAppConnect />
+
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="grid md:grid-cols-3 gap-6 mb-8">
           <motion.div
-            whileHover={{scale:1.05, y:-5, boxShadow:'0 20px 40px rgba(14,165,233,0.15)'}}
-            initial={{opacity:0, x:-50}}
-            animate={{opacity:1, x:0}}
-            transition={{delay:0.3, type:'spring', stiffness:300}}
+            whileHover={{ scale: 1.05, y: -5, boxShadow: '0 20px 40px rgba(14,165,233,0.15)' }}
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.3, type: 'spring', stiffness: 300 }}
             className="p-6 bg-gradient-to-br from-white to-sky-50 rounded-2xl shadow-xl border border-sky-100 relative overflow-hidden"
           >
             <div className="absolute top-0 right-0 w-20 h-20 bg-sky-100 rounded-full -mr-10 -mt-10 opacity-50"></div>
@@ -84,10 +88,10 @@ export default function Dashboard(){
             </div>
           </motion.div>
           <motion.div
-            whileHover={{scale:1.05, y:-5, boxShadow:'0 20px 40px rgba(20,184,166,0.15)'}}
-            initial={{opacity:0, y:50}}
-            animate={{opacity:1, y:0}}
-            transition={{delay:0.4, type:'spring', stiffness:300}}
+            whileHover={{ scale: 1.05, y: -5, boxShadow: '0 20px 40px rgba(20,184,166,0.15)' }}
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4, type: 'spring', stiffness: 300 }}
             className="p-6 bg-gradient-to-br from-white to-teal-50 rounded-2xl shadow-xl border border-teal-100 relative overflow-hidden"
           >
             <div className="absolute top-0 right-0 w-20 h-20 bg-teal-100 rounded-full -mr-10 -mt-10 opacity-50"></div>
@@ -99,8 +103,8 @@ export default function Dashboard(){
               </div>
               <h3 className="text-lg font-semibold text-gray-700 mb-2">Quick Actions</h3>
               <motion.button
-                whileHover={{scale:1.05}}
-                whileTap={{scale:0.95}}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
                 onClick={() => navigate('/new-patient')}
                 className="mt-3 px-4 py-2 bg-gradient-to-r from-teal-500 to-cyan-500 text-white font-medium rounded-lg shadow-md hover:from-teal-600 hover:to-cyan-600 transition-all"
               >
@@ -109,10 +113,10 @@ export default function Dashboard(){
             </div>
           </motion.div>
           <motion.div
-            whileHover={{scale:1.05, y:-5, boxShadow:'0 20px 40px rgba(139,92,246,0.15)'}}
-            initial={{opacity:0, x:50}}
-            animate={{opacity:1, x:0}}
-            transition={{delay:0.5, type:'spring', stiffness:300}}
+            whileHover={{ scale: 1.05, y: -5, boxShadow: '0 20px 40px rgba(139,92,246,0.15)' }}
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.5, type: 'spring', stiffness: 300 }}
             className="p-6 bg-gradient-to-br from-white to-indigo-50 rounded-2xl shadow-xl border border-indigo-100 relative overflow-hidden"
           >
             <div className="absolute top-0 right-0 w-20 h-20 bg-indigo-100 rounded-full -mr-10 -mt-10 opacity-50"></div>
@@ -129,9 +133,9 @@ export default function Dashboard(){
         </motion.div>
 
         <motion.div
-          initial={{opacity:0, y:30}}
-          animate={{opacity:1, y:0}}
-          transition={{delay:0.6}}
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
           className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl shadow-xl border border-gray-100"
         >
           {loading ? (

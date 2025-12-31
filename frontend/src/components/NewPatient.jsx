@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import api from '../api'
 import { motion } from 'framer-motion'
 import { getToken } from '../utils/auth'
 
 export default function NewPatient() {
   const navigate = useNavigate()
+  const { id } = useParams()
+  const [loading, setLoading] = useState(false)
 
   // Check for token on component mount
   useEffect(() => {
@@ -13,10 +15,59 @@ export default function NewPatient() {
       navigate('/login', { replace: true })
       return
     }
-  }, [navigate])
+    if (id) {
+      fetchPatient()
+    }
+  }, [navigate, id])
+
+  const fetchPatient = async () => {
+    try {
+      setLoading(true)
+      const res = await api.get(`/api/patients/${id}`)
+      // Ensure all fields are present to avoid uncontrolled input errors
+      const data = res.data
+      setForm(prev => ({
+        ...prev,
+        ...data,
+        medicalHistory: { ...prev.medicalHistory, ...(data.medicalHistory || {}) },
+        presentGlass: {
+          right: { ...prev.presentGlass.right, ...(data.presentGlass?.right || {}) },
+          left: { ...prev.presentGlass.left, ...(data.presentGlass?.left || {}) }
+        },
+        visualAcuity: {
+          distance: {
+            right: { ...prev.visualAcuity.distance.right, ...(data.visualAcuity?.distance?.right || {}) },
+            left: { ...prev.visualAcuity.distance.left, ...(data.visualAcuity?.distance?.left || {}) }
+          },
+          near: {
+            right: { ...prev.visualAcuity.near.right, ...(data.visualAcuity?.near?.right || {}) },
+            left: { ...prev.visualAcuity.near.left, ...(data.visualAcuity?.near?.left || {}) }
+          }
+        },
+        objectiveRefraction: {
+          right: { ...prev.objectiveRefraction.right, ...(data.objectiveRefraction?.right || {}) },
+          left: { ...prev.objectiveRefraction.left, ...(data.objectiveRefraction?.left || {}) }
+        },
+        subjectiveRefraction: {
+          right: { ...prev.subjectiveRefraction.right, ...(data.subjectiveRefraction?.right || {}) },
+          left: { ...prev.subjectiveRefraction.left, ...(data.subjectiveRefraction?.left || {}) }
+        },
+        slitLamp: {
+          right: { ...prev.slitLamp.right, ...(data.slitLamp?.right || {}) },
+          left: { ...prev.slitLamp.left, ...(data.slitLamp?.left || {}) }
+        }
+      }))
+    } catch (err) {
+      console.error(err)
+      alert('Error fetching patient details')
+      navigate('/')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const [form, setForm] = useState({
-    name: '', age: '', gender: '', phone: '', address: '', date: '', complaint: '',
+    name: '', age: '', gender: '', phone: '', address: '', date: new Date().toISOString().split('T')[0], complaint: '',
     medicalHistory: {
       diabetes: false,
       hypertension: false,
@@ -78,7 +129,13 @@ export default function NewPatient() {
   const submit = async e => {
     e.preventDefault()
     try {
-      await api.post('/api/patients', form)
+      if (id) {
+        await api.put(`/api/patients/${id}`, form)
+        alert('Patient updated successfully.')
+      } else {
+        await api.post('/api/patients', form)
+        alert('Patient created successfully.')
+      }
       navigate('/')
     } catch (err) {
       alert('Error saving patient')
@@ -101,9 +158,9 @@ export default function NewPatient() {
         >
           <div>
             <h1 className="text-4xl font-bold bg-gradient-to-r from-slate-700 to-indigo-700 bg-clip-text text-transparent">
-              Add New Patient
+              {id ? 'Edit Patient' : 'Add New Patient'}
             </h1>
-            <p className="text-slate-600 mt-2">Enter comprehensive patient examination details</p>
+            <p className="text-slate-600 mt-2">{id ? 'Update' : 'Enter'} comprehensive patient examination details</p>
           </div>
           <motion.button
             whileHover={{ scale: 1.05 }}
@@ -664,7 +721,7 @@ export default function NewPatient() {
               <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
-              Save Patient
+              {id ? 'Update Patient' : 'Save Patient'}
             </motion.button>
           </motion.div>
         </motion.form>
