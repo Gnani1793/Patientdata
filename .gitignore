@@ -5,3 +5,5 @@ backend/node_modules/
 .env.local
 dist
 .DS_Store
+.wwebjs_auth/
+backend/.wwebjs_auth/

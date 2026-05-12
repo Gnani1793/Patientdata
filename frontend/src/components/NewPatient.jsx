@@ -26,9 +26,13 @@ export default function NewPatient() {
       const res = await api.get(`/api/patients/${id}`)
       // Ensure all fields are present to avoid uncontrolled input errors
       const data = res.data
+      const fetchedDiagnosis = data.diagnosis || '';
+      const parsedDiagnosis = fetchedDiagnosis ? fetchedDiagnosis.split(', ') : [];
+
       setForm(prev => ({
         ...prev,
         ...data,
+        diagnosis: parsedDiagnosis,
         medicalHistory: { ...prev.medicalHistory, ...(data.medicalHistory || {}) },
         presentGlass: {
           right: { ...prev.presentGlass.right, ...(data.presentGlass?.right || {}) },
@@ -103,14 +107,14 @@ export default function NewPatient() {
     },
     slitLamp: {
       right: {
-        lids: '', conjunctiva: '', cornea: '', anteriorChamber: '', pupil: '', iris: '', lens: ''
+        lids: 'OILY SECRETION', conjunctiva: 'QUIET', cornea: 'CLEAR', anteriorChamber: 'DEEP', pupil: 'R/R/R', iris: 'NORMAL COLOR AND PIGMENTED', lens: 'CLEAR'
       },
       left: {
-        lids: '', conjunctiva: '', cornea: '', anteriorChamber: '', pupil: '', iris: '', lens: ''
+        lids: 'OILY SECRETION', conjunctiva: 'QUIET', cornea: 'CLEAR', anteriorChamber: 'DEEP', pupil: 'R/R/R', iris: 'NORMAL COLOR AND PIGMENTED', lens: 'CLEAR'
       }
     },
     fundus: '',
-    diagnosis: '', advice: ''
+    diagnosis: [], advice: ''
   })
 
   const updateForm = (path, value) => {
@@ -129,11 +133,14 @@ export default function NewPatient() {
   const submit = async e => {
     e.preventDefault()
     try {
+      const payload = { ...form }
+      payload.diagnosis = Array.isArray(payload.diagnosis) ? payload.diagnosis.join(', ') : payload.diagnosis;
+
       if (id) {
-        await api.put(`/api/patients/${id}`, form)
+        await api.put(`/api/patients/${id}`, payload)
         alert('Patient updated successfully.')
       } else {
-        await api.post('/api/patients', form)
+        await api.post('/api/patients', payload)
         alert('Patient created successfully.')
       }
       navigate('/')
@@ -674,14 +681,26 @@ export default function NewPatient() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Diagnosis</label>
-                <textarea
+                <label className="block text-sm font-medium text-gray-700 mb-2">Diagnosis (Hold Ctrl/Cmd to select multiple)</label>
+                <select
+                  multiple
                   value={form.diagnosis}
-                  onChange={e => updateForm('diagnosis', e.target.value)}
-                  rows={4}
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-red-400 focus:ring-4 focus:ring-red-100 transition-all bg-white/50 backdrop-blur-sm"
-                  placeholder="Enter diagnosis"
-                />
+                  onChange={e => {
+                    const options = Array.from(e.target.selectedOptions, option => option.value);
+                    updateForm('diagnosis', options);
+                  }}
+                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-red-400 focus:ring-4 focus:ring-red-100 transition-all bg-white/50 backdrop-blur-sm mb-3"
+                  size={8}
+                >
+                  <option value="Myopia">Myopia</option>
+                  <option value="Hypermetropia">Hypermetropia</option>
+                  <option value="Presbyopia">Presbyopia</option>
+                  <option value="Astigmatism">Astigmatism</option>
+                  <option value="Cataract">Cataract</option>
+                  <option value="Glaucoma">Glaucoma</option>
+                  <option value="Intraocular Lens">Intraocular Lens</option>
+                  <option value="Diabetic Retinopathy">Diabetic Retinopathy</option>
+                </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Advice</label>
