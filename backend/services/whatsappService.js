@@ -8,22 +8,6 @@ let isReady = false;
 const initialize = () => {
     console.log('Initializing WhatsApp Client...');
 
-    // Create a new client instance
-    client = new Client({
-        authStrategy: new LocalAuth(),
-        puppeteer: {
-            headless: true,
-            args: [
-                '--no-sandbox',
-                '--disable-setuid-sandbox',
-                '--disable-dev-shm-usage',
-                '--disable-accelerated-2d-canvas',
-                '--no-first-run',
-                '--no-zygote',
-                '--disable-gpu'
-            ]
-        }
-    });
 
     client.on('qr', async (qr) => {
         console.log('QR Received');
