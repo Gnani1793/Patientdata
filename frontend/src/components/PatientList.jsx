@@ -3,6 +3,7 @@ import { motion } from 'framer-motion'
 import api from '../api'
 import { useReactToPrint } from 'react-to-print'
 import Receipt from './Receipt'
+import PrintWrapper from './PrintWrapper'
 import { formatPatientMessage } from '../utils/whatsappFormatter'
 
 import { useNavigate } from 'react-router-dom'
@@ -16,8 +17,10 @@ export default function PatientList({ patients, onRefresh }) {
   const handlePrint = (patient) => {
     setSelected(patient)
     setTimeout(() => {
-      ref.current && ref.current.handlePrint()
-    }, 50)
+      if (ref.current) {
+        ref.current.handlePrint()
+      }
+    }, 250)
   }
 
   const handleDelete = async (id) => {
@@ -218,16 +221,7 @@ export default function PatientList({ patients, onRefresh }) {
         )}
       </motion.div>
 
-      <div style={{ display: 'none' }}>
-        <PrintWrapper ref={ref} patient={selected} />
-      </div>
+      <PrintWrapper ref={ref} patient={selected} />
     </motion.div>
   )
 }
-
-const PrintWrapper = React.forwardRef(({ patient }, ref) => {
-  const componentRef = React.useRef()
-  const handlePrint = useReactToPrint({ content: () => componentRef.current })
-  React.useImperativeHandle(ref, () => ({ handlePrint }))
-  return <div><Receipt ref={componentRef} patient={patient} /></div>
-})

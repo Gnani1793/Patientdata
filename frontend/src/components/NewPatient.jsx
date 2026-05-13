@@ -3,11 +3,14 @@ import { useNavigate, useParams } from 'react-router-dom'
 import api from '../api'
 import { motion } from 'framer-motion'
 import { getToken } from '../utils/auth'
+import PrintWrapper from './PrintWrapper'
 
 export default function NewPatient() {
   const navigate = useNavigate()
   const { id } = useParams()
   const [loading, setLoading] = useState(false)
+  const [printingPatient, setPrintingPatient] = useState(null)
+  const printRef = React.useRef()
 
   // Check for token on component mount
   useEffect(() => {
@@ -130,18 +133,34 @@ export default function NewPatient() {
     })
   }
 
-  const submit = async e => {
-    e.preventDefault()
+  const submit = async (e, shouldPrint = false) => {
+    if (e) e.preventDefault()
     try {
       const payload = { ...form }
       payload.diagnosis = Array.isArray(payload.diagnosis) ? payload.diagnosis.join(', ') : payload.diagnosis;
 
       if (id) {
-        await api.put(`/api/patients/${id}`, payload)
+        const res = await api.put(`/api/patients/${id}`, payload)
         alert('Patient updated successfully.')
+        if (shouldPrint) {
+          setPrintingPatient(res.data)
+          setTimeout(() => {
+            printRef.current?.handlePrint()
+            navigate('/')
+          }, 250)
+          return
+        }
       } else {
-        await api.post('/api/patients', payload)
+        const res = await api.post('/api/patients', payload)
         alert('Patient created successfully.')
+        if (shouldPrint) {
+          setPrintingPatient(res.data)
+          setTimeout(() => {
+            printRef.current?.handlePrint()
+            navigate('/')
+          }, 250)
+          return
+        }
       }
       navigate('/')
     } catch (err) {
@@ -681,26 +700,30 @@ export default function NewPatient() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Diagnosis (Hold Ctrl/Cmd to select multiple)</label>
-                <select
-                  multiple
-                  value={form.diagnosis}
-                  onChange={e => {
-                    const options = Array.from(e.target.selectedOptions, option => option.value);
-                    updateForm('diagnosis', options);
-                  }}
-                  className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-red-400 focus:ring-4 focus:ring-red-100 transition-all bg-white/50 backdrop-blur-sm mb-3"
-                  size={8}
-                >
-                  <option value="Myopia">Myopia</option>
-                  <option value="Hypermetropia">Hypermetropia</option>
-                  <option value="Presbyopia">Presbyopia</option>
-                  <option value="Astigmatism">Astigmatism</option>
-                  <option value="Cataract">Cataract</option>
-                  <option value="Glaucoma">Glaucoma</option>
-                  <option value="Intraocular Lens">Intraocular Lens</option>
-                  <option value="Diabetic Retinopathy">Diabetic Retinopathy</option>
-                </select>
+                <label className="block text-sm font-medium text-gray-700 mb-4 font-bold text-lg">Diagnosis (Select multiple)</label>
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 bg-white/50 backdrop-blur-sm p-6 border-2 border-gray-200 rounded-2xl shadow-inner">
+                  {['Myopia', 'Hypermetropia', 'Presbyopia', 'Astigmatism', 'Cataract', 'Glaucoma', 'Intraocular Lens', 'Diabetic Retinopathy', 'Conjunctivitis', 'Dry Eye', 'Corneal Ulcer', 'Retinal Detachment'].map(item => (
+                    <label key={item} className="flex items-center space-x-3 p-3 rounded-xl hover:bg-red-50 transition-all cursor-pointer border border-transparent hover:border-red-200 group">
+                      <div className="relative flex items-center">
+                        <input
+                          type="checkbox"
+                          checked={form.diagnosis.includes(item)}
+                          onChange={e => {
+                            const newDiagnosis = e.target.checked
+                              ? [...form.diagnosis, item]
+                              : form.diagnosis.filter(d => d !== item);
+                            updateForm('diagnosis', newDiagnosis);
+                          }}
+                          className="peer w-5 h-5 text-red-600 border-2 border-gray-300 rounded-lg focus:ring-red-500 focus:ring-offset-2 transition-all cursor-pointer appearance-none checked:bg-red-500 checked:border-red-500"
+                        />
+                        <svg className="w-3.5 h-3.5 absolute left-0.5 pointer-events-none hidden peer-checked:block text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                      <span className="text-sm font-medium text-gray-700 group-hover:text-red-700 transition-colors">{item}</span>
+                    </label>
+                  ))}
+                </div>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">Advice</label>
@@ -734,6 +757,18 @@ export default function NewPatient() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
+              type="button"
+              onClick={(e) => submit(e, true)}
+              className="px-8 py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-semibold rounded-xl shadow-lg hover:from-emerald-600 hover:to-teal-600 transition-all flex items-center"
+            >
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+              </svg>
+              {id ? 'Update & Print' : 'Save & Print'}
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
               type="submit"
               className="px-8 py-3 bg-gradient-to-r from-blue-500 to-indigo-500 text-white font-semibold rounded-xl shadow-lg hover:from-blue-600 hover:to-indigo-600 transition-all flex items-center"
             >
@@ -744,6 +779,7 @@ export default function NewPatient() {
             </motion.button>
           </motion.div>
         </motion.form>
+        <PrintWrapper ref={printRef} patient={printingPatient} />
       </div>
     </motion.div>
   )

@@ -7,10 +7,10 @@ const DOCTOR = 'DHARMANA KAMESWARA RAO'
 const DOCTOR_PHONE = '95736 93655'
 
 const Receipt = forwardRef(({ patient }, ref) => {
-  if (!patient) return <div ref={ref}>No patient selected</div>
+  if (!patient) return <div ref={ref} className="p-10">No patient selected</div>
   return (
-    <motion.div ref={ref} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }} className="p-10 bg-gradient-to-br from-white via-gray-50 to-blue-50 text-black shadow-2xl rounded-3xl border-2 border-sky-100" style={{ width: 850, fontFamily: 'serif' }}>
-      <motion.div initial={{ y: -30, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }} className="text-center mb-8">
+    <div ref={ref} className="p-10 bg-white text-black border-2 border-gray-100" style={{ width: 850, fontFamily: 'serif', minHeight: '1000px' }}>
+      <div className="text-center mb-8">
         <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.2, type: 'spring' }} className="w-24 h-24 bg-gradient-to-br from-sky-400 to-teal-500 rounded-full mx-auto mb-6 flex items-center justify-center shadow-xl">
           <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -21,7 +21,7 @@ const Receipt = forwardRef(({ patient }, ref) => {
         <p className="text-lg text-gray-600 mb-2">{CLINIC_ADDRESS}</p>
         <p className="text-base text-gray-600 mb-4">Optometrist: <span className="font-semibold text-sky-700">{DOCTOR}</span> | Phone: <span className="font-semibold">{DOCTOR_PHONE}</span></p>
         <motion.div initial={{ scale: 0.9 }} animate={{ scale: 1 }} transition={{ delay: 0.3 }} className="w-32 h-1 bg-gradient-to-r from-sky-400 to-teal-500 mx-auto rounded-full"></motion.div>
-      </motion.div>
+      </div>
 
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="text-center mb-8">
         <h2 className="text-3xl font-bold text-pink-400 mb-2">PATIENT EXAMINATION REPORT</h2>
@@ -319,7 +319,7 @@ const Receipt = forwardRef(({ patient }, ref) => {
         <p>Printed on {new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
         <p className="text-xs mt-2">This is a computer generated report and does not require signature</p>
       </motion.div>
-    </motion.div>
+    </div>
   )
 })
 
