@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: sseye-optical-crm
+    runtime: docker
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: FRONTEND_URL
+        value: https://sseye-optical-crm.onrender.com
+      - key: MONGODB_URI
+        fromValue: YOUR_MONGODB_URI_HERE
+      - key: JWT_SECRET
+        fromValue: YOUR_JWT_SECRET_HERE
+    disk:
+      name: whatsapp-session
+      mountPath: /usr/src/app/backend/.wwebjs_auth
+      sizeGB: 1
